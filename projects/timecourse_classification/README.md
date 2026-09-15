@@ -53,7 +53,7 @@ Optuna/MLflow experiments are optional and live below `notebooks/artifacts/exper
 
 ```bash
 uv sync --extra torch
-jupyter lab projects/pytorch_timecourse_classification/notebooks/
+jupyter lab projects/timecourse_classification/notebooks/
 ```
 
 For Optuna scans, MLflow tracking and Captum attribution with uv:

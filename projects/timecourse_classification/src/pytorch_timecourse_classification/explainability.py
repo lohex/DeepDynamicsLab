@@ -82,10 +82,20 @@ def integrated_gradients(
     *,
     baselines: Tensor | None = None,
     steps: int = 64,
+    internal_batch_size: int | None = None,
 ) -> Tensor:
-    """Return input-level Integrated Gradients using Captum."""
+    """Return input-level Integrated Gradients using bounded Captum batches."""
     if steps < 2:
         raise ValueError("steps must be at least two.")
+    if len(inputs) < 1:
+        raise ValueError("inputs must contain at least one sample.")
+    resolved_internal_batch_size = (
+        len(inputs) if internal_batch_size is None else internal_batch_size
+    )
+    if resolved_internal_batch_size < len(inputs):
+        raise ValueError(
+            "internal_batch_size must be at least the number of input samples."
+        )
     IntegratedGradients = _captum_attr().IntegratedGradients
     model.eval()
     resolved_targets = _targets(model, inputs, targets)
@@ -95,6 +105,7 @@ def integrated_gradients(
         baselines=resolved_baselines,
         target=resolved_targets,
         n_steps=steps,
+        internal_batch_size=resolved_internal_batch_size,
     ).detach()
 
 

@@ -14,6 +14,14 @@ import pandas as pd
 import torch
 from torch import nn
 
+from deeplearning_examples.tuning import (
+    TrialBudgetMode,
+    create_optuna_study,
+    optuna_parameter_importances,
+    require_optuna,
+    resolve_optuna_trial_budget,
+)
+
 from .analysis import classification_metrics, predict_classes
 from .data import FoldData, Preprocessor
 from .experiments import create_model, fit_model
@@ -21,7 +29,6 @@ from .training import EpochMetrics, TrainingConfig, TrainingHistory
 
 
 ScanScope = Literal["joint", "training", "model"]
-TrialBudgetMode = Literal["additional", "total"]
 ModelConfigSuggester = Callable[[Any, Mapping[str, object]], dict[str, object]]
 TrainingConfigSuggester = Callable[[Any, TrainingConfig], TrainingConfig]
 
@@ -539,7 +546,7 @@ def run_optuna_scan(
     Optuna is an optional dependency. Install the project with the ``tuning``
     extra before calling this function.
     """
-    optuna = _require_optuna()
+    optuna = require_optuna()
     cfg = scan_config or OptunaScanConfig()
     suggest_model = model_config_suggester or suggest_cnn_model_config
     suggest_training = training_config_suggester or suggest_training_config
@@ -550,23 +557,18 @@ def run_optuna_scan(
     if cfg.n_trials < 1 or cfg.n_startup_trials < 0:
         raise ValueError("n_trials must be positive and n_startup_trials non-negative.")
 
-    sampler = optuna.samplers.TPESampler(seed=cfg.sampler_seed)
-    pruner = optuna.pruners.MedianPruner(
-        n_startup_trials=cfg.n_startup_trials,
-        n_warmup_steps=cfg.pruning_warmup_epochs,
-    )
-    study = optuna.create_study(
+    study = create_optuna_study(
         direction="maximize",
-        sampler=sampler,
-        pruner=pruner,
         study_name=cfg.study_name,
         storage=cfg.storage,
-        load_if_exists=cfg.storage is not None,
+        sampler_seed=cfg.sampler_seed,
+        n_startup_trials=cfg.n_startup_trials,
+        pruning_warmup_steps=cfg.pruning_warmup_epochs,
     )
-    trials_to_run = (
-        cfg.n_trials
-        if cfg.n_trials_mode == "additional"
-        else max(0, cfg.n_trials - len(study.trials))
+    trials_to_run = resolve_optuna_trial_budget(
+        study,
+        n_trials=cfg.n_trials,
+        mode=cfg.n_trials_mode,
     )
     tracker = None
     if mlflow_tracking is not None:
@@ -703,15 +705,6 @@ def run_optuna_scan(
                 )
             tracker.log_trial_summary(study_metrics)
     return study
-
-
-def optuna_parameter_importances(study: Any) -> pd.Series:
-    """Return Optuna's global parameter importances as a sorted series."""
-    optuna = _require_optuna()
-    importances = optuna.importance.get_param_importances(study)
-    return pd.Series(importances, name="importance", dtype=float).sort_values(
-        ascending=False
-    )
 
 
 def suggest_training_config(
@@ -1264,17 +1257,6 @@ def best_trials_per_architecture(study: Any) -> tuple[Any, ...]:
         if current is None or float(trial.value) > float(current.value):
             best[architecture] = trial
     return tuple(sorted(best.values(), key=lambda trial: float(trial.value), reverse=True))
-
-
-def _require_optuna() -> Any:
-    try:
-        import optuna
-    except ModuleNotFoundError as error:
-        raise ModuleNotFoundError(
-            "Optuna is required for parameter scans. Install with "
-            "`uv sync --extra torch --extra tuning`."
-        ) from error
-    return optuna
 
 
 def _jsonable(value: object) -> object:
