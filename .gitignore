@@ -7,4 +7,5 @@ __pycache__/
 build/
 dist/
 bbbc021_5class/
-projects/pytorch_timecourse_classification/notebooks/artifacts/
+projects/timecourse_classification/notebooks/artifacts/
+projects/burst_detection/notebooks/artifacts/
