@@ -1,6 +1,6 @@
 # DeepLearningExamples
 
-Small, self-contained PyTorch projects for biological image and time-course data. The repository develops the workflows from data inspection and fixed splits through reproducible training, tuning, interpretation, model comparison and generative modeling. Notebooks document questions and results; reusable implementation lives in importable Python packages.
+Small, self-contained PyTorch projects for biological time-course data. The repository develops the workflows from data inspection and fixed splits through reproducible training, tuning, interpretation, model comparison and generative AI. Notebooks document questions and results; reusable implementation lives in importable Python packages.
 
 ## Repository structure
 
@@ -18,9 +18,9 @@ projects/
 
 | Project | Scientific question | ML engineering focus |
 | --- | --- | --- |
-| [Time-course classification](projects/pytorch_timecourse_classification/) | Which temporal representations distinguish TGF-beta stimulation doses? | Controlled ablations, optimization versus architecture, reproducible model selection and temporal explanations |
-| [Conditional GAN](projects/pytorch_cdgan/) | Can dose-conditioned generators reproduce realistic single-cell trajectories? | Stable adversarial training, conditional generation and quality diagnostics beyond loss curves |
-| [BBBC021 morphology classification](projects/bbbc021_morphology_classification/) | How can microscopy morphology be prepared for treatment classification? | Group-aware splitting, scalable dataset construction and protection against biological leakage |
+| [Time-course classification](projects/timecourse_classification/README.md) | Which temporal representations distinguish TGF-beta stimulation doses? | Controlled ablations, optimization versus architecture, reproducible model selection and temporal explanations |
+| [Burst detection](projects/burst_detection/README.md) | Where do bursts occur in single-cell SMAD trajectories? | Dense temporal prediction, imbalanced segmentation and point/event-level evaluation |
+| [Generative AI: time-course generation](projects/timecourse-generation/README.md) | Can conditional generative models reproduce realistic, dose-specific single-cell trajectories? | GAN, Wasserstein/f-GAN and VAE training with held-out distribution and diversity diagnostics |
 
 ## ML engineering questions
 
@@ -31,24 +31,24 @@ The projects are organized around questions that recur in real ML systems:
 - **Reliability:** Is a result stable across seeds, does training converge, and do the histories indicate underfitting, overfitting or unstable optimization?
 - **Search strategy:** Which hypotheses deserve controlled ablations, and when is a broader Optuna search more appropriate?
 - **Evaluation discipline:** How are models selected without repeatedly consulting the test fold, and which metrics expose class-specific errors hidden by accuracy?
-- **Interpretability:** Does a model use plausible temporal or morphological evidence, and do attention or attribution maps support that conclusion?
+- **Interpretability:** Does a model use plausible temporal evidence, and do attention or attribution maps support that conclusion?
 - **Reproducibility:** Which preprocessing state, model configuration, training strategy and checkpoint must be saved to rebuild an experiment?
-- **Generative quality:** Do synthetic trajectories preserve dose-dependent distributions, dynamics and diversity rather than merely fooling a discriminator?
+- **Generative AI quality:** Do synthetic trajectories preserve dose-dependent distributions, dynamics and diversity rather than merely optimizing a discriminator or reconstruction loss?
 
-Together, the projects move from trustworthy dataset construction through discriminative model development to conditional generation. A well-evaluated classifier can later also support the GAN project as an independent test of whether generated trajectories retain dose information.
+Together, the projects move from trustworthy dataset construction through discriminative model development to conditional generative AI. The validation-selected classifier supports the generation project as an independent test of whether generated trajectories retain dose information.
 
 ### Time-course workflow
 
 The classification project contains the main end-to-end engineering example:
 
-1. [`01_data_visualization.ipynb`](projects/pytorch_timecourse_classification/notebooks/01_data_visualization.ipynb) establishes hypotheses from only the fixed training fold, statistical trajectory features and dose-dependent clusters.
-2. [`02_cnn_training.ipynb`](projects/pytorch_timecourse_classification/notebooks/02_cnn_training.ipynb) asks how capacity and training hyperparameters affect stability, convergence and over- or underfitting.
-3. [`02_extended_cnns_training.ipynb`](projects/pytorch_timecourse_classification/notebooks/02_extended_cnns_training.ipynb) demonstrates controlled architecture screening, equal-budget architecture-specific Optuna tuning, MLflow tracking and multi-seed confirmation.
-4. [`02_attention_training.ipynb`](projects/pytorch_timecourse_classification/notebooks/02_attention_training.ipynb) studies long-range context, positional information and the limits of attention as an explanation.
-5. [`03_model_family_comparison.ipynb`](projects/pytorch_timecourse_classification/notebooks/03_model_family_comparison.ipynb) separates validation-based model selection from the final test comparison and broadens evaluation beyond accuracy.
-6. [`04_explainable_ai.ipynb`](projects/pytorch_timecourse_classification/notebooks/04_explainable_ai.ipynb) explains the tune-selected top three Extended CNNs with Grad-CAM, Integrated Gradients, temporal occlusion and deletion controls.
+1. [`01_data_visualization.ipynb`](projects/timecourse_classification/notebooks/01_data_visualization.ipynb) establishes hypotheses from only the fixed training fold, statistical trajectory features and dose-dependent clusters.
+2. [`02_cnn_training.ipynb`](projects/timecourse_classification/notebooks/02_cnn_training.ipynb) asks how capacity and training hyperparameters affect stability, convergence and over- or underfitting.
+3. [`02_extended_cnns_training.ipynb`](projects/timecourse_classification/notebooks/02_extended_cnns_training.ipynb) demonstrates controlled architecture screening, equal-budget architecture-specific Optuna tuning, MLflow tracking and multi-seed confirmation.
+4. [`02_attention_training.ipynb`](projects/timecourse_classification/notebooks/02_attention_training.ipynb) studies long-range context, positional information and the limits of attention as an explanation.
+5. [`03_model_family_comparison.ipynb`](projects/timecourse_classification/notebooks/03_model_family_comparison.ipynb) separates validation-based model selection from the final test comparison and broadens evaluation beyond accuracy.
+6. [`04_explainable_ai.ipynb`](projects/timecourse_classification/notebooks/04_explainable_ai.ipynb) explains the tune-selected top three Extended CNNs with Grad-CAM, Integrated Gradients, temporal occlusion and deletion controls.
 
-The GAN notebook is [`projects/pytorch_cdgan/notebooks/cdgan.ipynb`](projects/pytorch_cdgan/notebooks/cdgan.ipynb). The BBBC021 project currently contains the dataset-construction notebook documented in its project README.
+Each project README contains its notebook workflow and run instructions: [time-course classification](projects/timecourse_classification/README.md), [burst detection](projects/burst_detection/README.md) and [generative AI](projects/timecourse-generation/README.md).
 
 ## Installation
 
@@ -58,12 +58,11 @@ The repository uses `uv`. Install the PyTorch projects from the repository root 
 uv sync --extra torch
 ```
 
-Add optional experiment tuning or image-dataset dependencies as needed:
+Add optional tuning and experiment-tracking dependencies as needed:
 
 ```bash
 uv sync --extra torch --extra tuning
 uv sync --extra torch --extra experiment
-uv sync --extra bbbc021
 uv sync --all-extras
 ```
 

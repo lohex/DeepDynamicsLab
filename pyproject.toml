@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "deeplearning-examples"
 version = "0.1.0"
-description = "Deep-learning examples for biological time-course and image data"
+description = "Deep-learning examples for biological time-course classification, detection, and generative AI"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -30,33 +30,25 @@ experiment = [
     "mlflow>=3.0",
     "optuna>=4.0",
 ]
-bbbc021 = [
-    "pillow>=9.5",
-    "requests>=2.28",
-    "tqdm>=4.64",
-]
 all = [
     "captum>=0.8",
     "mlflow>=3.0",
-    "pillow>=9.5",
-    "requests>=2.28",
     "torch>=2.0",
     "optuna>=4.0",
-    "tqdm>=4.64",
 ]
 
 [tool.setuptools]
 packages = [
     "deeplearning_examples",
     "pytorch_cdgan",
+    "burst_detection",
     "pytorch_timecourse_classification",
     "pytorch_timecourse_classification.models",
-    "bbbc021_morphology_classification",
 ]
 
 [tool.setuptools.package-dir]
 deeplearning_examples = "src/deeplearning_examples"
-pytorch_cdgan = "projects/pytorch_cdgan/src/pytorch_cdgan"
-pytorch_timecourse_classification = "projects/pytorch_timecourse_classification/src/pytorch_timecourse_classification"
-"pytorch_timecourse_classification.models" = "projects/pytorch_timecourse_classification/src/pytorch_timecourse_classification/models"
-bbbc021_morphology_classification = "projects/bbbc021_morphology_classification/src/bbbc021_morphology_classification"
+pytorch_cdgan = "projects/timecourse-generation/src/pytorch_cdgan"
+burst_detection = "projects/burst_detection/src/burst_detection"
+pytorch_timecourse_classification = "projects/timecourse_classification/src/pytorch_timecourse_classification"
+"pytorch_timecourse_classification.models" = "projects/timecourse_classification/src/pytorch_timecourse_classification/models"
