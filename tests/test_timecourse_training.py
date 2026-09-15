@@ -417,7 +417,22 @@ class TimecourseTrainingTests(unittest.TestCase):
         model.eval()
         inputs = self.tune_fold.features[:4]
         targets = self.tune_fold.targets[:4]
-        integrated = integrated_gradients(model, inputs, targets, steps=4)
+        integrated_batch_sizes = []
+
+        def record_integrated_batch(module, arguments):
+            integrated_batch_sizes.append(len(arguments[0]))
+
+        handle = model.register_forward_pre_hook(record_integrated_batch)
+        try:
+            integrated = integrated_gradients(
+                model,
+                inputs,
+                targets,
+                steps=4,
+                internal_batch_size=len(inputs),
+            )
+        finally:
+            handle.remove()
         gradcam = layer_gradcam(
             model,
             inputs,
@@ -429,6 +444,17 @@ class TimecourseTrainingTests(unittest.TestCase):
         self.assertEqual(tuple(gradcam.shape), tuple(inputs.shape))
         self.assertTrue(torch.isfinite(integrated).all())
         self.assertTrue(torch.isfinite(gradcam).all())
+        self.assertLessEqual(max(integrated_batch_sizes), len(inputs))
+        with self.assertRaisesRegex(
+            ValueError, "at least the number of input samples"
+        ):
+            integrated_gradients(
+                model,
+                inputs,
+                targets,
+                steps=4,
+                internal_batch_size=len(inputs) - 1,
+            )
 
     @unittest.skipUnless(importlib.util.find_spec("mlflow"), "MLflow extra not installed")
     def test_optuna_trial_is_logged_to_mlflow(self) -> None:
