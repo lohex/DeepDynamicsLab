@@ -22,6 +22,8 @@ projects/
 | [Burst detection](projects/burst_detection/README.md) | Where do bursts occur in single-cell SMAD trajectories? | Dense temporal prediction, imbalanced segmentation and point/event-level evaluation |
 | [Generative AI: time-course generation](projects/timecourse-generation/README.md) | Can conditional generative models reproduce realistic, dose-specific single-cell trajectories? | GAN, Wasserstein/f-GAN and VAE training with held-out distribution and diversity diagnostics |
 
+Each project README contains its notebook workflow and run instructions: [time-course classification](projects/timecourse_classification/README.md), [burst detection](projects/burst_detection/README.md) and [generative AI](projects/timecourse-generation/README.md).
+
 ## ML engineering questions
 
 The projects are organized around questions that recur in real ML systems:
@@ -37,18 +39,16 @@ The projects are organized around questions that recur in real ML systems:
 
 Together, the projects move from trustworthy dataset construction through discriminative model development to conditional generative AI. The validation-selected classifier supports the generation project as an independent test of whether generated trajectories retain dose information.
 
-### Time-course workflow
+## Design conventions
 
-The classification project contains the main end-to-end engineering example:
+- Notebooks contain data selection, experiment configuration, plots and interpretation.
+- Neural-network definitions live in each project's `model.py` or `models/` package.
+- Optimization lives in `training.py` and is exposed as a function, not a trainer class.
+- Shared experiment orchestration, artifact persistence and analysis live in project `src/` packages rather than notebook helper functions.
+- Shared dataset imports and representations live in `src/deeplearning_examples/`.
+- Fixed train, validation and test assignments are stored with the data; preprocessing is fitted on train only and test remains untouched until final evaluation.
+- Rebuildable checkpoints are accompanied by training histories and strategy metadata.
 
-1. [`01_data_visualization.ipynb`](projects/timecourse_classification/notebooks/01_data_visualization.ipynb) establishes hypotheses from only the fixed training fold, statistical trajectory features and dose-dependent clusters.
-2. [`02_cnn_training.ipynb`](projects/timecourse_classification/notebooks/02_cnn_training.ipynb) asks how capacity and training hyperparameters affect stability, convergence and over- or underfitting.
-3. [`02_extended_cnns_training.ipynb`](projects/timecourse_classification/notebooks/02_extended_cnns_training.ipynb) demonstrates controlled architecture screening, equal-budget architecture-specific Optuna tuning, MLflow tracking and multi-seed confirmation.
-4. [`02_attention_training.ipynb`](projects/timecourse_classification/notebooks/02_attention_training.ipynb) studies long-range context, positional information and the limits of attention as an explanation.
-5. [`03_model_family_comparison.ipynb`](projects/timecourse_classification/notebooks/03_model_family_comparison.ipynb) separates validation-based model selection from the final test comparison and broadens evaluation beyond accuracy.
-6. [`04_explainable_ai.ipynb`](projects/timecourse_classification/notebooks/04_explainable_ai.ipynb) explains the tune-selected top three Extended CNNs with Grad-CAM, Integrated Gradients, temporal occlusion and deletion controls.
-
-Each project README contains its notebook workflow and run instructions: [time-course classification](projects/timecourse_classification/README.md), [burst detection](projects/burst_detection/README.md) and [generative AI](projects/timecourse-generation/README.md).
 
 ## Installation
 
@@ -68,12 +68,3 @@ uv sync --all-extras
 
 The equivalent editable pip installation for tracked tuning is `python -m pip install -e ".[torch,experiment]"`.
 
-## Design conventions
-
-- Notebooks contain data selection, experiment configuration, plots and interpretation.
-- Neural-network definitions live in each project's `model.py` or `models/` package.
-- Optimization lives in `training.py` and is exposed as a function, not a trainer class.
-- Shared experiment orchestration, artifact persistence and analysis live in project `src/` packages rather than notebook helper functions.
-- Shared dataset imports and representations live in `src/deeplearning_examples/`.
-- Fixed train, validation and test assignments are stored with the data; preprocessing is fitted on train only and test remains untouched until final evaluation.
-- Rebuildable checkpoints are accompanied by training histories and strategy metadata.

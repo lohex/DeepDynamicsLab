@@ -71,6 +71,7 @@ before applying the example to a new biological annotation protocol.
 | [`02_tcn_training_and_evaluation.ipynb`](notebooks/02_tcn_training_and_evaluation.ipynb) | Check TCN trainability, tune TCN/CNN/BiGRU variants, train their final candidates, and export validation-frozen checkpoints and thresholds without reading the hold-out results. |
 | [`02_unet_training_and_evaluation.ipynb`](notebooks/02_unet_training_and_evaluation.ipynb) | Alternative 1D U-Net workflow with a memorization check, Optuna tuning, final training, validation event plots, and separate frozen artifacts. |
 | [`03_holdout_test_and_model_comparison.ipynb`](notebooks/03_holdout_test_and_model_comparison.ipynb) | Load both frozen manifests, verify matching protocols, and compare TCN, CNN, BiGRU, U-Net, and the classical detector on the shared hold-out fold with metric bars and aligned probability/event panels. |
+| [`04_unet_burst_statistics_by_dose.ipynb`](notebooks/04_unet_burst_statistics_by_dose.ipynb) | Apply the frozen U-Net to held-out experimental trajectories and compare detected burst frequency, width, baseline-adjusted height, spacing and timing across stimulation doses. |
 
 Reusable code lives in `src/burst_detection/`:
 
@@ -102,3 +103,5 @@ The U-Net alternative writes `best_unet.pt`, `burst_unet_optuna.db`, and
 `unet_holdout_models.json` separately. Run both `02_` training notebooks before
 Notebook 03, which loads both manifests automatically and includes all four neural
 models in the comparison. The split definitions and selection protocols must match.
+Notebook 04 additionally requires the frozen U-Net checkpoint and manifest produced by
+`02_unet_training_and_evaluation.ipynb`.
